@@ -2,11 +2,10 @@ FROM python:3.9
 
 WORKDIR /usr/src/app
 
-COPY . ./
+COPY requirements.txt .
 
-# COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt \ 
-    && pip install pandas
+RUN pip install --no-cache-dir -r requirements.txt  
+    # && pip install pandas
 
 COPY . .
 

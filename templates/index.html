@@ -106,7 +106,7 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .add-column-btn {
+        .column-btn {
             padding: 8px 12px;
             background-color: #007BFF;
             color: white;
@@ -117,12 +117,12 @@
             transition: background-color 0.3s, transform 0.2s;
         }
 
-        .add-column-btn:hover {
+        .column-btn:hover {
             background-color: #0056b3;
             transform: scale(1.1);
         }
 
-        .add-column-btn:active {
+        .column-btn:active {
             background-color: #004080;
         }
 
@@ -132,12 +132,12 @@
     <h1>Upload Your PDF File</h1>
     <div class="upload-container">
 
-    <form id="uploadForm" method="post" action="/" enctype="multipart/form-data">
+    <form id="uploadForm" method="POST" action="/" enctype="multipart/form-data">
         <div class="format-container">
             <label for="format-select">Choose output format:</label>
             <select name="format" id="format-select" required>
                 <option value="">--Please choose an option--</option>
-                <option value="excel">Excel (.xlsx)</option>
+                <option value="xlsx">Excel (.xlsx)</option>
                 <option value="csv">CSV (.csv)</option>
                 <option value="json">JSON (.json)</option>
             </select>
@@ -145,8 +145,8 @@
 
         <div id="columns-container">
             <label for="columns" style="font-size: 18px; color: #007BFF; font-weight: bold;">Specify Column Names:</label>
-            <button type="button" id="addColumn" class="add-column-btn">+</button>
-                <button type="button" id="removeColumn" class="remove-column-btn">-</button>
+            <button type="button" id="addColumn" class="column-btn">+</button>
+                <button type="button" id="removeColumn" class="column-btn">-</button>
             <div id="column-inputs" class="input-group">
                 <input type="text" name="columns[]" placeholder="Column 1" required>
             </div>
@@ -157,6 +157,9 @@
             <button type="submit" id="submitButton" disabled >Extract Tables</button>
         </form>
         <p id="status"></p>
+        <!-- <div id="download-container">
+            <a href="{{ download_url }}" download>Click here to download the processed file</a>
+        </div> -->
     </div>
 
     <script>
@@ -168,6 +171,18 @@
         const removeColumnButton = document.getElementById('removeColumn');
         const columnInputs = document.getElementById('column-inputs');
         const outputFormat = document.getElementById("format-select")
+
+        uploadForm.addEventListener("change", function () {
+            const columnNames = Array.from(columnInputs.querySelectorAll('input[name="columns[]"]'))
+            .map(input => input.value.trim())
+            .filter(name => name !== '');            
+
+            if (fileInput.files.length > 0 && outputFormat.value.length >= 1 && columnNames.length >= 1) {
+                submitButton.disabled = false;
+            } else {
+                submitButton.disabled = true;
+            }
+        })
 
         // Add new column input dynamically
         addColumnButton.addEventListener("click", function (e) {
@@ -191,30 +206,8 @@
             }
         });
 
-        fileInput.addEventListener("change", function () {
-            if (fileInput.files.length > 0) {
-                submitButton.disabled = false;
-            } else {
-                submitButton.disabled = true;
-            }
-        })
-
         submitButton.addEventListener("click", function (e) {
             e.preventDefault()   
-            const columnNames = Array.from(columnInputs.querySelectorAll('input[name="columns[]"]'))
-            .map(input => input.value.trim())
-            .filter(name => name !== '');
-
-            if (columnNames.length === 0) {
-                alert("Please ensure you specified column names.");
-                return;
-            }
-
-            if (outputFormat.value.length == 0) {
-                alert("Please choose an output format")
-                return
-            }
-
             uploadForm.submit()
         })
     </script>
