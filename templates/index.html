@@ -60,12 +60,12 @@
         .upload-container button:active {
             background-color: #004080;
         }
-        /* .upload-container button:disabled {
+        .upload-container button:disabled {
             background-color: #cccccc;
             cursor: not-allowed; 
             color: #666666; 
             border: 1px solid #aaaaaa; 
-        } */
+        } 
         #status {
             margin-top: 20px;
             font-size: 16px;
@@ -130,11 +130,9 @@
 </head>
 <body>
     <h1>Upload Your PDF File</h1>
-
     <div class="upload-container">
 
     <form id="uploadForm" method="post" action="/" enctype="multipart/form-data">
-        
         <div class="format-container">
             <label for="format-select">Choose output format:</label>
             <select name="format" id="format-select" required>
@@ -147,17 +145,16 @@
 
         <div id="columns-container">
             <label for="columns" style="font-size: 18px; color: #007BFF; font-weight: bold;">Specify Column Names:</label>
+            <button type="button" id="addColumn" class="add-column-btn">+</button>
+                <button type="button" id="removeColumn" class="remove-column-btn">-</button>
             <div id="column-inputs" class="input-group">
                 <input type="text" name="columns[]" placeholder="Column 1" required>
-                <button type="button" id="addColumn" class="add-column-btn">+</button>
-                <button type="button" id="removeColumn" class="remove-column-btn">-</button>
             </div>
         </div>
         
-
             <input id="fileInput" type="file" name="file" required/>
             <br>
-            <button type="submit" id="submitButton"  >Extract Tables</button>
+            <button type="submit" id="submitButton" disabled >Extract Tables</button>
         </form>
         <p id="status"></p>
     </div>
@@ -170,6 +167,7 @@
         const addColumnButton = document.getElementById('addColumn');
         const removeColumnButton = document.getElementById('removeColumn');
         const columnInputs = document.getElementById('column-inputs');
+        const outputFormat = document.getElementById("format-select")
 
         // Add new column input dynamically
         addColumnButton.addEventListener("click", function (e) {
@@ -177,44 +175,47 @@
             const newInput = document.createElement('input');
             newInput.type = 'text';
             newInput.name = 'columns[]';
-            newInput.placeholder = `Column ${columnInputs.children.length - 1}`;
+            newInput.placeholder = `Column ${columnInputs.children.length + 1}`;
             newInput.required = true;
             columnInputs.appendChild(newInput);
         });
 
         removeColumnButton.addEventListener("click", function (e) {
             e.preventDefault();
-            // Get all input fields inside the columnInputs container
             const inputs = columnInputs.querySelectorAll('input[name="columns[]"]');
             
-            // Ensure there's at least one column input remaining
             if (inputs.length > 1) {
-                // Remove the last input field
                 columnInputs.removeChild(inputs[inputs.length - 1]);
             } else {
                 alert("You must have at least one column.");
             }
         });
 
-
         fileInput.addEventListener("change", function () {
             if (fileInput.files.length > 0) {
-                console.log();
-                
-                // submitButton.disabled = false;
+                submitButton.disabled = false;
             } else {
-                // submitButton.disabled = true;
+                submitButton.disabled = true;
             }
         })
 
-        submitButton.addEventListener("submit", function (e) {
-            e.preventDefault()            
-            // const columnNames = Array.from(columnInputs.querySelectorAll('input')).map(input => input.value.trim());
-            // if (columnNames.some(name => name === '')) {
-            //     e.preventDefault();
-            //     alert("Please ensure all column names are filled.");
-            // }
-            // uploadForm.submit()
+        submitButton.addEventListener("click", function (e) {
+            e.preventDefault()   
+            const columnNames = Array.from(columnInputs.querySelectorAll('input[name="columns[]"]'))
+            .map(input => input.value.trim())
+            .filter(name => name !== '');
+
+            if (columnNames.length === 0) {
+                alert("Please ensure you specified column names.");
+                return;
+            }
+
+            if (outputFormat.value.length == 0) {
+                alert("Please choose an output format")
+                return
+            }
+
+            uploadForm.submit()
         })
     </script>
 </body>

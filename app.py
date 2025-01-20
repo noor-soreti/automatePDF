@@ -13,7 +13,6 @@ print(type(find_library("gs")))
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
-
         # check if post request has file part
         if 'file' not in request.files:
             return 'No file uploaded', 400
@@ -27,6 +26,8 @@ def upload_file():
            file_path = os.path.join('uploads', file.filename)
            cols = ['Name', 'Address', 'Date', 'Amount', 'Returned']
            dataset_prep(file_path, cols)
+
+
     return render_template('index.html')
 
 def dataset_prep(file, cols, page='all'):
